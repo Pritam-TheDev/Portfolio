@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyberpunk Terminal Portfolio</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    color: #00ffcc;
+    font-family: monospace;
+    overflow: hidden;
+}
+#grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(#4b0082 1px, transparent 1px),
+        linear-gradient(90deg, #4b0082 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveGrid 10s linear infinite;
+    z-index: 0;
+    opacity: 0.4;
+}
+@keyframes moveGrid {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 100px 100px, 100px 100px; }
+}
+#terminal {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+.line {
+    margin: 2px 0;
+}
+#input-line {
+    display: inline-block;
+}
+#terminal-input::after {
+    content: "█";
+    animation: blink 1s step-start infinite;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
+.skill-container {
+    width: 100%;
+    background: #222;
+    margin: 2px 0;
+}
+.skill-bar {
+    height: 10px;
+    background: #00ffcc;
+    width: 0%;
+}
+a {
+    color: #00ffcc;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+<div id="grid"></div>
+<div id="terminal">
+    <div class="line">Welcome to Shadow's Cyberpunk Terminal Portfolio. Type <strong>help</strong> to see available commands.</div>
+    <div id="input-line">User@Visitor:~$ <span id="terminal-input"></span></div>
+</div>
+
+<script>
+const terminalOutput = document.getElementById('terminal');
+const terminalInput = document.getElementById('terminal-input');
+const terminalPrompt = "User@Visitor:~$ ";
+
+const keySounds = [
+    'typing-keyboard-asmr-356116_VwcYiUqU.mp3',
+    'typing-keyboard-asmr-356116_q4cVefKg.mp3',
+    'typing-keyboard-asmr-356116_GM3i7VHr.mp3',
+    'typing-keyboard-asmr-356116_aC2pZnqv.mp3',
+    'typing-keyboard-asmr-356116_7SQ1A6D2.mp3'
+];
+
+const allCommands = ["profile","likes","dislikes","skills","projects","wb-connections","help","contact"];
+
+const commands = {
+    profile: "Name: Shadow MBTI: INTJ\nBio: Hello, I am an AI supervisor and coder. I love exploring cyberpunk aesthetics, gaming, coding, and building websites. If you want to learn something, just ask me, and I’ll guide you. I enjoy interactive study sessions, creative problem-solving, and experimenting with tech, while I steer clear of rude people and boring study sessions.",
+    likes: [
+        "Cyberpunk aesthetics",
+        "Chill beats",
+        "Interactive tech",
+        "Interactive study sessions",
+        "Gaming",
+        "Coding",
+        "Website building",
+        "AI supervising"
+    ],
+    dislikes: [
+        "Rude people",
+        "Boring study sessions"
+    ],
+    skills: [
+        {name: "Programming", level: 90},
+        {name: "Design", level: 85},
+        {name: "Hacking vibes", level: 80},
+        {name: "Customizing anything", level: 75},
+        {name: "AI supervising", level: 80},
+        {name: "Problem Solving", level: 85},
+        {name: "Tech Experimentation", level: 80},
+        {name: "Project Management", level: 75},
+        {name: "Music/Beats", level: 70},
+        {name: "3D Modeling", level: 80}
+    ],
+    projects: [
+        "3DQ",
+        "Cyberpunk Terminal Website",
+        "Mini Game Engine Prototype"
+    ],
+    "wb-connections": [
+        "Connections:",
+        "Discord: 99_Shadow_99"
+    ],
+    help: "Available commands:\nprofile\nlikes\ndislikes\nskills\nprojects\nwb-connections\nhelp\ncontact"
+};
+
+function animateSkills() {
+    document.querySelectorAll('.skill-bar').forEach((bar, idx) => {
+        let width = 0;
+        const target = commands.skills[idx].level;
+        const interval = setInterval(() => {
+            if (width >= target) clearInterval(interval);
+            bar.style.width = width + '%';
+            width++;
+        }, 15);
+    });
+}
+
+function typeWriter(text, element, callback, i = 0) {
+    if (i < text.length) {
+        element.textContent += text.charAt(i);
+        setTimeout(() => typeWriter(text, element, callback, i + 1), 20);
+    } else if (callback) callback();
+}
+
+function typeWriterByLine(textArray, parentElement, callback, i = 0) {
+    if (i >= textArray.length) {
+        if (callback) callback();
+        return;
+    }
+    const lineDiv = document.createElement('div');
+    lineDiv.classList.add('line');
+    lineDiv.innerHTML = textArray[i]; // render HTML for links
+    parentElement.appendChild(lineDiv);
+    parentElement.scrollTop = parentElement.scrollHeight;
+
+    // Play line click sound
+    const audio = new Audio('computer-mouse-click-352734.mp3');
+    audio.volume = 0.5;
+    audio.play();
+
+    setTimeout(() => {
+        typeWriterByLine(textArray, parentElement, callback, i + 1);
+    }, 200);
+}
+
+function handleCommand(input) {
+    const commandLine = document.createElement('div');
+    commandLine.classList.add('line');
+    commandLine.textContent = `${terminalPrompt}${input}`;
+    terminalOutput.insertBefore(commandLine, terminalOutput.lastElementChild);
+
+    // Thinking animation
+    const thinkingLine = document.createElement('div');
+    thinkingLine.classList.add('line');
+    terminalOutput.insertBefore(thinkingLine, terminalOutput.lastElementChild);
+
+    let dots = 0;
+    const maxDots = 4;
+    const thinkingInterval = setInterval(() => {
+        dots = (dots + 1) % (maxDots + 1);
+        thinkingLine.textContent = "Thinking" + ".".repeat(dots);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }, 300);
+
+    setTimeout(() => {
+        clearInterval(thinkingInterval);
+        terminalOutput.removeChild(thinkingLine);
+
+        const outputLine = document.createElement('div');
+        outputLine.classList.add('line');
+        terminalOutput.insertBefore(outputLine, terminalOutput.lastElementChild);
+
+        if (commands[input]) {
+            if (input === "skills") {
+                typeWriter("\nSkills detected...\n", outputLine, () => {
+                    commands.skills.forEach(skill => {
+                        const label = document.createElement('div');
+                        label.textContent = skill.name + ":";
+                        terminalOutput.insertBefore(label, terminalOutput.lastElementChild);
+
+                        const container = document.createElement('div');
+                        container.classList.add('skill-container');
+
+                        const bar = document.createElement('div');
+                        bar.classList.add('skill-bar');
+                        container.appendChild(bar);
+                        terminalOutput.insertBefore(container, terminalOutput.lastElementChild);
+                    });
+                    setTimeout(() => animateSkills(), 100);
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                });
+            } else if (Array.isArray(commands[input])) {
+                typeWriterByLine(commands[input], outputLine);
+            } else {
+                typeWriterByLine([commands[input]], outputLine);
+            }
+        } else {
+            typeWriterByLine([`Command not found: ${input}`], outputLine);
+        }
+
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }, 1000);
+}
+
+// Autocomplete
+let currentSuggestions = [];
+let suggestionIndex = 0;
+
+function getSuggestions(input) {
+    return allCommands.filter(cmd => cmd.startsWith(input));
+}
+
+// Keypress listener with typing sounds and autocomplete
+document.addEventListener('keydown', (e) => {
+    if (e.key.length === 1) {
+        terminalInput.textContent += e.key;
+
+        // Random typing sound
+        const audio = new Audio(keySounds[Math.floor(Math.random() * keySounds.length)]);
+        audio.volume = 0.4;
+        audio.play();
+
+        // Update suggestions
+        currentSuggestions = getSuggestions(terminalInput.textContent);
+        suggestionIndex = 0;
+    } else if (e.key === "Backspace") {
+        terminalInput.textContent = terminalInput.textContent.slice(0, -1);
+        currentSuggestions = getSuggestions(terminalInput.textContent);
+        suggestionIndex = 0;
+    } else if (e.key === "Tab") {
+        if (currentSuggestions.length > 0) {
+            terminalInput.textContent = currentSuggestions[0];
+        }
+        e.preventDefault();
+    } else if (e.key === "Enter") {
+        handleCommand(terminalInput.textContent.trim());
+        terminalInput.textContent = '';
+        currentSuggestions = [];
+        suggestionIndex = 0;
+    }
+});
+
+// Startup scan + uptime bar
+function startupScan(callback) {
+    const scanLine = document.createElement('div');
+    scanLine.classList.add('line');
+    terminalOutput.insertBefore(scanLine, terminalOutput.lastElementChild);
+
+    let dots = 0;
+    let cycles = 0;
+    const maxDots = 5;
+    const maxCycles = 5;
+
+    const scanInterval = setInterval(() => {
+        dots = (dots + 1) % (maxDots + 1);
+        scanLine.textContent = "Scanning" + ".".repeat(dots);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        cycles++;
+        if (cycles > maxCycles * maxDots) {
+            clearInterval(scanInterval);
+            scanLine.textContent = "Scan completed.";
+
+            const progressBarLine = document.createElement('div');
+            progressBarLine.classList.add('line');
+            terminalOutput.insertBefore(progressBarLine, terminalOutput.lastElementChild);
+
+            let percent = 80;
+            const progressInterval = setInterval(() => {
+                const filled = Math.floor((percent-80)/20*20);
+                const empty = 20 - filled;
+                progressBarLine.textContent = `[${'='.repeat(filled)}${' '.repeat(empty)}] ${percent}% uptime`;
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                percent++;
+                if (percent > 100) clearInterval(progressInterval);
+            }, 50);
+
+            if (callback) callback();
+        }
+    }, 400);
+}
+
+// Dynamic system status
+function dynamicSystemStatus() {
+    const statusLine = document.createElement('div');
+    statusLine.classList.add('line');
+    terminalOutput.insertBefore(statusLine, terminalOutput.lastElementChild);
+
+    function updateStatus() {
+        const cpu = Math.floor(10 + Math.random() * 70);
+        const ram = Math.floor(40 + Math.random() * 50);
+        const network = Math.floor(50 + Math.random() * 150);
+        const uptime = Math.floor(80 + Math.random() * 20);
+        statusLine.textContent = `CPU: ${cpu}%   RAM: ${ram}%   Network: ${network} Mbps   Website uptime: ${uptime}%`;
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    setInterval(updateStatus, 1500);
+    updateStatus();
+}
+
+// Start
+startupScan(dynamicSystemStatus);
+</script>
+</body>
+</html>
