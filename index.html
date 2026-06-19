@@ -25,7 +25,7 @@ body {
     animation: moveGrid 10s linear infinite;
     z-index: 0;
     opacity: 0.4;
-    pointer-events: none; /* Allows click-through to highlight text underneath */
+    pointer-events: none;
 }
 @keyframes moveGrid {
     0% { background-position: 0 0, 0 0; }
@@ -38,7 +38,7 @@ body {
     min-height: 100vh;
     box-sizing: border-box;
     cursor: text;
-    user-select: text; /* Explicitly enables mouse/touch highlighting */
+    user-select: text;
     -webkit-user-select: text;
 }
 .line {
@@ -296,7 +296,7 @@ function typeWriterByLine(textArray, parentElement, callback, i = 0) {
 
 function handleCommand(rawInput) {
     const input = rawInput.trim();
-    const lowerInput = input.toLowerCase(); // Makes calculation completely case-insensitive
+    const lowerInput = input.toLowerCase(); // Strictly matching lower key parameters
 
     const commandLine = document.createElement('div');
     commandLine.classList.add('line');
@@ -372,7 +372,7 @@ function handleCommand(rawInput) {
     }, 1000);
 }
 
-// Allows user to click terminal to focus input, unless they are trying to select/copy text
+// Allows user to highlight text safely without stealing focus away
 document.addEventListener('click', (e) => {
     const selectedText = window.getSelection().toString();
     if (!selectedText && e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
