@@ -151,10 +151,12 @@ a {
     46% { clip: rect(0px, 150px, 150px, 0px); transform: none; }
 }
 
+/* --- UPDATED GRADIENT & GLOW SUBSCRIBE BUTTON --- */
 .sub-btn {
     margin-top: 15px;
-    padding: 8px 20px;
-    background: transparent;
+    padding: 10px 24px;
+    /* Default State: Sleek Dark Cyberpunk Gradient */
+    background: linear-gradient(135deg, #001a14 0%, #003322 100%);
     color: #00ffcc;
     border: 1px solid #00ffcc;
     font-family: monospace;
@@ -162,21 +164,25 @@ a {
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 2px;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 5px rgba(0, 255, 204, 0.4);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
     display: inline-block;
     text-decoration: none;
+    border-radius: 2px;
 }
 
+/* Hover State: Lights up with a vibrant neon gradient shift */
 .sub-btn:hover {
-    background: #00ffcc;
-    color: #000;
-    box-shadow: 0 0 15px #00ffcc;
+    background: linear-gradient(135deg, #00ffcc 0%, #009977 100%);
+    color: #000000;
+    box-shadow: 0 0 25px #00ffcc, inset 0 0 10px rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
+    border-color: #ffffff;
 }
 
 .sub-btn:active {
     transform: translateY(0);
+    box-shadow: 0 0 10px #00ffcc;
 }
 
 #hidden-input {
@@ -296,7 +302,7 @@ function typeWriterByLine(textArray, parentElement, callback, i = 0) {
 
 function handleCommand(rawInput) {
     const input = rawInput.trim();
-    const lowerInput = input.toLowerCase(); // Strictly matching lower key parameters
+    const lowerInput = input.toLowerCase();
 
     const commandLine = document.createElement('div');
     commandLine.classList.add('line');
@@ -372,7 +378,6 @@ function handleCommand(rawInput) {
     }, 1000);
 }
 
-// Allows user to highlight text safely without stealing focus away
 document.addEventListener('click', (e) => {
     const selectedText = window.getSelection().toString();
     if (!selectedText && e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
