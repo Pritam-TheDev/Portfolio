@@ -68,13 +68,13 @@ a {
     text-decoration: none;
 }
 
-/* --- YOUTUBE CRT CARD INTERFACE --- */
+/* --- YOUTUBE ULTRA HD INTERFACE --- */
 .yt-card {
     margin: 15px 0;
     padding: 15px;
     border: 1px solid #00ffcc;
-    background: rgba(0, 0, 0, 0.9);
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    background: rgba(0, 0, 0, 0.95);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.25);
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -92,51 +92,58 @@ a {
     }
 }
 
-/* Updated Screen Container using specified Retro-Gothic CRT Template Layout */
-.crt-pfp-container {
+/* ULTRA HD Frame with Micro Glitch Overlays */
+.uhd-pfp-container {
     position: relative;
     width: 150px;
     height: 150px;
-    border: 2px solid #00ffcc;
-    box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.5), 0 0 10px rgba(0, 255, 204, 0.3);
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
     overflow: hidden;
-    
-    /* 1. Base Hex Background Color Spec */
-    background-color: #082531;
-    
-    /* 2. CRT Subpixel & Scanline Grid Layout (Stacked Horizontal + Vertical Subpixel Splits) */
-    background-image: 
-        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.03), rgba(0, 255, 0, 0.01), rgba(255, 0, 0, 0.03));
-    background-size: 100% 3px, 3px 100%;
+    background: #000;
 }
 
-.crt-pfp {
+.uhd-pfp {
     width: 100%;
     height: 100%;
     background: url('ytpfp.jpg') no-repeat center/cover;
-    mix-blend-mode: luminosity; /* Merges beautifully into the retro-gothic base layout */
-    opacity: 0.85;
+    image-rendering: -webkit-optimize-contrast; /* Clear/sharp upscaling */
+    image-rendering: crisp-edges;
 }
 
-/* 3. Smooth Vertical rolling refresh beam pseudo-element overlay */
-.crt-pfp-container::after {
-    content: ''; 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 60px;
-    background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.1), transparent);
-    opacity: 0.15; 
-    animation: scan 8s ease-in-out infinite; 
+/* Micro Slice Glitch Artifacts (Active every few seconds) */
+.uhd-pfp-container::before, .uhd-pfp-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('ytpfp.jpg') no-repeat center/cover;
+    opacity: 0;
     pointer-events: none;
-    z-index: 5;
 }
 
-@keyframes scan { 
-    0% { transform: translateY(-100%); } 
-    100% { transform: translateY(250%); } 
+.uhd-pfp-container::before {
+    animation: micro-glitch-1 4s steps(2) infinite;
+}
+
+.uhd-pfp-container::after {
+    animation: micro-glitch-2 4s steps(2) infinite;
+}
+
+@keyframes micro-glitch-1 {
+    0%, 92%, 100% { opacity: 0; transform: none; filter: none; }
+    93% { opacity: 0.7; transform: translateX(-4px); clip: rect(10px, 150px, 25px, 0); filter: hue-rotate(90deg); }
+    95% { opacity: 0.5; transform: translateX(3px); clip: rect(80px, 150px, 95px, 0); }
+    97% { opacity: 0; transform: none; }
+}
+
+@keyframes micro-glitch-2 {
+    0%, 94%, 100% { opacity: 0; transform: none; filter: none; }
+    95% { opacity: 0.8; transform: translateX(5px); clip: rect(45px, 150px, 60px, 0); filter: invert(1); }
+    96% { opacity: 0.6; transform: translateX(-2px); clip: rect(120px, 150px, 135px, 0); }
+    98% { opacity: 0; transform: none; }
 }
 
 /* Cyberpunk Subscribe Button */
@@ -182,10 +189,11 @@ a {
 <body>
 <div id="grid"></div>
 <div id="terminal">
-    <div class="line">Welcome to Terminal Portfolio. Type <strong>help</strong> to see available commands.</div>
+    <div class="line">Welcome to Pritam's Cyberpunk Terminal Portfolio. Type <strong>help</strong> to see available commands.</div>
     <div id="input-line">User@Visitor:~$ <span id="terminal-input"></span></div>
 </div>
 
+<!-- Hidden input field -->
 <input type="text" id="hidden-input" autocomplete="off" autofocus>
 
 <script>
@@ -205,7 +213,7 @@ const keySounds = [
 const allCommands = ["profile","likes","dislikes","skills","projects","wb-connections","youtube","help","contact"];
 
 const commands = {
-    profile: "MBTI: INTJ\nBio: Hello, I am an AI supervisor and coder. I love exploring cyberpunk aesthetics, gaming, coding, and building websites. If you want to learn something, just ask me, and I’ll guide you. I enjoy interactive study sessions, creative problem-solving, and experimenting with tech, while I steer clear of rude people and boring study sessions.",
+    profile: "Name: Pritam MBTI: INTJ\nBio: Hello, I am an AI supervisor and coder. I love exploring cyberpunk aesthetics, gaming, coding, and building websites. If you want to learn something, just ask me, and I’ll guide you. I enjoy interactive study sessions, creative problem-solving, and experimenting with tech, while I steer clear of rude people and boring study sessions.",
     likes: [
         "Cyberpunk aesthetics",
         "Chill beats",
@@ -241,7 +249,7 @@ const commands = {
         "Connections:",
         "YouTube: <a href='https://youtube.com/@pritam999xt' target='_blank'>@pritam999xt</a>"
     ],
-    youtube: "Establishing uplink to database feed...",
+    youtube: "Establishing uplink to Pritam's database feed...",
     help: "Available commands:\nprofile\nlikes\ndislikes\nskills\nprojects\nwb-connections\nyoutube\nhelp\ncontact"
 };
 
@@ -335,10 +343,10 @@ function handleCommand(input) {
                     card.classList.add('yt-card');
                     
                     card.innerHTML = `
-                        <div class="crt-pfp-container">
-                            <div class="crt-pfp"></div>
+                        <div class="uhd-pfp-container">
+                            <div class="uhd-pfp"></div>
                         </div>
-                        <div style="margin-top:10px; font-weight:bold;">CHANNEL INTERFACE</div>
+                        <div style="margin-top:10px; font-weight:bold;">PRITAM</div>
                         <div style="font-size:11px; color:#888;">@pritam999xt</div>
                         <a href="https://youtube.com/@pritam999xt" target="_blank" class="sub-btn">Subscribe</a>
                     `;
