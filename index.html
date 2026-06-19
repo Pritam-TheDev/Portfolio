@@ -67,21 +67,112 @@ a {
     color: #00ffcc;
     text-decoration: none;
 }
-/* Style for YouTube Embed */
-.youtube-embed-container {
+
+/* --- YOUTUBE GLITCH INTERFACE --- */
+.yt-card {
     margin: 15px 0;
-    border: 2px solid #00ffcc;
-    box-shadow: 0 0 10px #00ffcc;
-    max-width: 560px;
-    width: 100%;
-    height: 315px;
-    background: #000;
+    padding: 15px;
+    border: 1px solid #00ffcc;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 280px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: bootUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
-.youtube-embed-container iframe {
+
+@keyframes bootUp {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* CSS Glitch Effect using the same ytpfp.jpg */
+.glitch-pfp {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border: 2px solid #00ffcc;
+    background: url('ytpfp.jpg') no-repeat center/cover;
+    overflow: hidden;
+}
+
+.glitch-pfp::before, .glitch-pfp::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    border: none;
+    background: url('ytpfp.jpg') no-repeat center/cover;
+    opacity: 0.8;
 }
+
+.glitch-pfp::before {
+    left: 3px;
+    text-shadow: -2px 0 #ff00ff;
+    clip: rect(24px, 150px, 90px, 0);
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch-pfp::after {
+    left: -3px;
+    text-shadow: -2px 0 #00ffff;
+    clip: rect(85px, 150px, 140px, 0);
+    animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip: rect(20px, 150px, 40px, 0); }
+    20% { clip: rect(80px, 150px, 100px, 0); }
+    40% { clip: rect(10px, 150px, 60px, 0); }
+    60% { clip: rect(110px, 150px, 130px, 0); }
+    80% { clip: rect(40px, 150px, 90px, 0); }
+    100% { clip: rect(70px, 150px, 120px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(70px, 150px, 105px, 0); }
+    25% { clip: rect(15px, 150px, 55px, 0); }
+    50% { clip: rect(95px, 150px, 135px, 0); }
+    75% { clip: rect(35px, 150px, 75px, 0); }
+    100% { clip: rect(5px, 150px, 85px, 0); }
+}
+
+/* Cyberpunk Subscribe Button */
+.sub-btn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: transparent;
+    color: #00ffcc;
+    border: 1px solid #00ffcc;
+    font-family: monospace;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 5px rgba(0, 255, 204, 0.4);
+    display: inline-block;
+    text-decoration: none;
+}
+
+.sub-btn:hover {
+    background: #00ffcc;
+    color: #000;
+    box-shadow: 0 0 15px #00ffcc;
+    transform: translateY(-2px);
+}
+
+.sub-btn:active {
+    transform: translateY(0);
+}
+
 /* Invisible text input to trigger mobile keyboard and native pasting */
 #hidden-input {
     position: absolute;
@@ -155,7 +246,7 @@ const commands = {
         "Connections:",
         "YouTube: <a href='https://youtube.com/@pritam999xt' target='_blank'>@pritam999xt</a>"
     ],
-    youtube: "Initializing visual feed from channel interface...",
+    youtube: "Establishing uplink to Pritam's database feed...",
     help: "Available commands:\nprofile\nlikes\ndislikes\nskills\nprojects\nwb-connections\nyoutube\nhelp\ncontact"
 };
 
@@ -245,10 +336,18 @@ function handleCommand(input) {
                 });
             } else if (input === "youtube") {
                 typeWriter(commands[input], outputLine, () => {
-                    const embedContainer = document.createElement('div');
-                    embedContainer.classList.add('youtube-embed-container');
-                    embedContainer.innerHTML = `<iframe src="https://www.youtube.com/embed?listType=user_uploads&user=pritam999xt" allowfullscreen></iframe>`;
-                    terminalOutput.insertBefore(embedContainer, terminalOutput.lastElementChild);
+                    // Create the custom visual terminal block
+                    const card = document.createElement('div');
+                    card.classList.add('yt-card');
+                    
+                    card.innerHTML = `
+                        <div class="glitch-pfp"></div>
+                        <div style="margin-top:10px; font-weight:bold;">PRITAM</div>
+                        <div style="font-size:11px; color:#888;">@pritam999xt</div>
+                        <a href="https://youtube.com/@pritam999xt" target="_blank" class="sub-btn">Subscribe</a>
+                    `;
+                    
+                    terminalOutput.insertBefore(card, terminalOutput.lastElementChild);
                     terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 });
             } else if (Array.isArray(commands[input])) {
@@ -333,7 +432,7 @@ function startupScan(callback) {
                 percent++;
                 if (percent > 100) {
                     clearInterval(progressInterval);
-                    hiddenInput.focus(); // focus up when loaded
+                    hiddenInput.focus(); 
                 }
             }, 50);
 
