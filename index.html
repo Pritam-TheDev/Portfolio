@@ -38,6 +38,7 @@ body {
     height: 100vh;
     overflow-y: auto;
     box-sizing: border-box;
+    cursor: text;
 }
 .line {
     margin: 2px 0;
@@ -81,6 +82,15 @@ a {
     height: 100%;
     border: none;
 }
+/* Invisible text input to trigger mobile keyboard and native pasting */
+#hidden-input {
+    position: absolute;
+    opacity: 0;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+}
 </style>
 </head>
 <body>
@@ -90,9 +100,12 @@ a {
     <div id="input-line">User@Visitor:~$ <span id="terminal-input"></span></div>
 </div>
 
+<input type="text" id="hidden-input" autocomplete="off" autofocus>
+
 <script>
 const terminalOutput = document.getElementById('terminal');
 const terminalInput = document.getElementById('terminal-input');
+const hiddenInput = document.getElementById('hidden-input');
 const terminalPrompt = "User@Visitor:~$ ";
 
 const keySounds = [
@@ -172,11 +185,10 @@ function typeWriterByLine(textArray, parentElement, callback, i = 0) {
     }
     const lineDiv = document.createElement('div');
     lineDiv.classList.add('line');
-    lineDiv.innerHTML = textArray[i]; // render HTML for links
+    lineDiv.innerHTML = textArray[i]; 
     parentElement.appendChild(lineDiv);
     parentElement.scrollTop = parentElement.scrollHeight;
 
-    // Play line click sound
     const audio = new Audio('computer-mouse-click-352734.mp3');
     audio.volume = 0.5;
     audio.play();
@@ -192,7 +204,6 @@ function handleCommand(input) {
     commandLine.textContent = `${terminalPrompt}${input}`;
     terminalOutput.insertBefore(commandLine, terminalOutput.lastElementChild);
 
-    // Thinking animation
     const thinkingLine = document.createElement('div');
     thinkingLine.classList.add('line');
     terminalOutput.insertBefore(thinkingLine, terminalOutput.lastElementChild);
@@ -236,10 +247,7 @@ function handleCommand(input) {
                 typeWriter(commands[input], outputLine, () => {
                     const embedContainer = document.createElement('div');
                     embedContainer.classList.add('youtube-embed-container');
-                    
-                    // Creates an iframe rendering the channel upload feed dynamically
                     embedContainer.innerHTML = `<iframe src="https://www.youtube.com/embed?listType=user_uploads&user=pritam999xt" allowfullscreen></iframe>`;
-                    
                     terminalOutput.insertBefore(embedContainer, terminalOutput.lastElementChild);
                     terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 });
@@ -256,41 +264,39 @@ function handleCommand(input) {
     }, 1000);
 }
 
-// Autocomplete
-let currentSuggestions = [];
-let suggestionIndex = 0;
+// Focus hidden input to prompt keyboard on mobile tap
+document.addEventListener('click', () => {
+    hiddenInput.focus();
+});
 
-function getSuggestions(input) {
-    return allCommands.filter(cmd => cmd.startsWith(input));
-}
-
-// Keypress listener with typing sounds and autocomplete
-document.addEventListener('keydown', (e) => {
-    if (e.key.length === 1) {
-        terminalInput.textContent += e.key;
-
-        // Random typing sound
+// Sync hidden input with terminal screen display
+hiddenInput.addEventListener('input', (e) => {
+    terminalInput.textContent = hiddenInput.value;
+    
+    // Play sound on typing
+    if (e.inputType !== "deleteContentBackward") {
         const audio = new Audio(keySounds[Math.floor(Math.random() * keySounds.length)]);
         audio.volume = 0.4;
         audio.play();
+    }
+});
 
-        // Update suggestions
-        currentSuggestions = getSuggestions(terminalInput.textContent);
-        suggestionIndex = 0;
-    } else if (e.key === "Backspace") {
-        terminalInput.textContent = terminalInput.textContent.slice(0, -1);
-        currentSuggestions = getSuggestions(terminalInput.textContent);
-        suggestionIndex = 0;
-    } else if (e.key === "Tab") {
+// Intercept functional keys (Enter, Tab)
+hiddenInput.addEventListener('keydown', (e) => {
+    let currentInput = hiddenInput.value;
+    let currentSuggestions = allCommands.filter(cmd => cmd.startsWith(currentInput));
+
+    if (e.key === "Tab") {
+        e.preventDefault();
         if (currentSuggestions.length > 0) {
+            hiddenInput.value = currentSuggestions[0];
             terminalInput.textContent = currentSuggestions[0];
         }
-        e.preventDefault();
     } else if (e.key === "Enter") {
-        handleCommand(terminalInput.textContent.trim());
+        e.preventDefault();
+        handleCommand(currentInput.trim());
+        hiddenInput.value = '';
         terminalInput.textContent = '';
-        currentSuggestions = [];
-        suggestionIndex = 0;
     }
 });
 
@@ -325,7 +331,10 @@ function startupScan(callback) {
                 progressBarLine.textContent = `[${'='.repeat(filled)}${' '.repeat(empty)}] ${percent}% uptime`;
                 terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 percent++;
-                if (percent > 100) clearInterval(progressInterval);
+                if (percent > 100) {
+                    clearInterval(progressInterval);
+                    hiddenInput.focus(); // focus up when loaded
+                }
             }, 50);
 
             if (callback) callback();
