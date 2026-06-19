@@ -66,12 +66,27 @@ a {
     color: #00ffcc;
     text-decoration: none;
 }
+/* Style for YouTube Embed */
+.youtube-embed-container {
+    margin: 15px 0;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 10px #00ffcc;
+    max-width: 560px;
+    width: 100%;
+    height: 315px;
+    background: #000;
+}
+.youtube-embed-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
 </style>
 </head>
 <body>
 <div id="grid"></div>
 <div id="terminal">
-    <div class="line">Welcome to Shadow's Cyberpunk Terminal Portfolio. Type <strong>help</strong> to see available commands.</div>
+    <div class="line">Welcome to Pritam's Cyberpunk Terminal Portfolio. Type <strong>help</strong> to see available commands.</div>
     <div id="input-line">User@Visitor:~$ <span id="terminal-input"></span></div>
 </div>
 
@@ -88,10 +103,10 @@ const keySounds = [
     'typing-keyboard-asmr-356116_7SQ1A6D2.mp3'
 ];
 
-const allCommands = ["profile","likes","dislikes","skills","projects","wb-connections","help","contact"];
+const allCommands = ["profile","likes","dislikes","skills","projects","wb-connections","youtube","help","contact"];
 
 const commands = {
-    profile: "Name: Shadow MBTI: INTJ\nBio: Hello, I am an AI supervisor and coder. I love exploring cyberpunk aesthetics, gaming, coding, and building websites. If you want to learn something, just ask me, and I’ll guide you. I enjoy interactive study sessions, creative problem-solving, and experimenting with tech, while I steer clear of rude people and boring study sessions.",
+    profile: "Name: Pritam MBTI: INTJ\nBio: Hello, I am an AI supervisor and coder. I love exploring cyberpunk aesthetics, gaming, coding, and building websites. If you want to learn something, just ask me, and I’ll guide you. I enjoy interactive study sessions, creative problem-solving, and experimenting with tech, while I steer clear of rude people and boring study sessions.",
     likes: [
         "Cyberpunk aesthetics",
         "Chill beats",
@@ -125,9 +140,10 @@ const commands = {
     ],
     "wb-connections": [
         "Connections:",
-        "Discord: 99_Shadow_99"
+        "YouTube: <a href='https://youtube.com/@pritam999xt' target='_blank'>@pritam999xt</a>"
     ],
-    help: "Available commands:\nprofile\nlikes\ndislikes\nskills\nprojects\nwb-connections\nhelp\ncontact"
+    youtube: "Initializing visual feed from channel interface...",
+    help: "Available commands:\nprofile\nlikes\ndislikes\nskills\nprojects\nwb-connections\nyoutube\nhelp\ncontact"
 };
 
 function animateSkills() {
@@ -214,6 +230,17 @@ function handleCommand(input) {
                         terminalOutput.insertBefore(container, terminalOutput.lastElementChild);
                     });
                     setTimeout(() => animateSkills(), 100);
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                });
+            } else if (input === "youtube") {
+                typeWriter(commands[input], outputLine, () => {
+                    const embedContainer = document.createElement('div');
+                    embedContainer.classList.add('youtube-embed-container');
+                    
+                    // Creates an iframe rendering the channel upload feed dynamically
+                    embedContainer.innerHTML = `<iframe src="https://www.youtube.com/embed?listType=user_uploads&user=pritam999xt" allowfullscreen></iframe>`;
+                    
+                    terminalOutput.insertBefore(embedContainer, terminalOutput.lastElementChild);
                     terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 });
             } else if (Array.isArray(commands[input])) {
