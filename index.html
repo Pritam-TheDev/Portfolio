@@ -11,10 +11,9 @@ body {
     background: #000;
     color: #00ffcc;
     font-family: monospace;
-    overflow: hidden;
 }
 #grid {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -26,6 +25,7 @@ body {
     animation: moveGrid 10s linear infinite;
     z-index: 0;
     opacity: 0.4;
+    pointer-events: none; /* Allows click-through to highlight text underneath */
 }
 @keyframes moveGrid {
     0% { background-position: 0 0, 0 0; }
@@ -35,13 +35,16 @@ body {
     position: relative;
     z-index: 1;
     padding: 20px;
-    height: 100vh;
-    overflow-y: auto;
+    min-height: 100vh;
     box-sizing: border-box;
     cursor: text;
+    user-select: text; /* Explicitly enables mouse/touch highlighting */
+    -webkit-user-select: text;
 }
 .line {
     margin: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 #input-line {
     display: inline-block;
@@ -68,7 +71,7 @@ a {
     text-decoration: none;
 }
 
-/* --- FIXED YOUTUBE ULTRA HD INTERFACE --- */
+/* --- YOUTUBE ULTRA HD INTERFACE --- */
 .yt-card {
     margin: 15px 0;
     padding: 15px;
@@ -92,7 +95,6 @@ a {
     }
 }
 
-/* ULTRA HD Glitch Container Engine */
 .uhd-pfp-container {
     position: relative;
     width: 150px;
@@ -111,7 +113,6 @@ a {
     image-rendering: crisp-edges;
 }
 
-/* Fixed Micro Scanlines & Dynamic Shift Plates */
 .uhd-pfp-container::before, .uhd-pfp-container::after {
     content: "";
     position: absolute;
@@ -124,7 +125,6 @@ a {
     display: block;
 }
 
-/* Syncing timing arrays to fix white flashing/disappearing issues */
 .uhd-pfp-container::before {
     left: 2px;
     animation: glitch-layer-1 3s infinite linear alternate-reverse;
@@ -151,7 +151,6 @@ a {
     46% { clip: rect(0px, 150px, 150px, 0px); transform: none; }
 }
 
-/* Cyberpunk Subscribe Button */
 .sub-btn {
     margin-top: 15px;
     padding: 8px 20px;
@@ -180,9 +179,8 @@ a {
     transform: translateY(0);
 }
 
-/* Invisible text input to trigger mobile keyboard and native pasting */
 #hidden-input {
-    position: absolute;
+    position: fixed;
     opacity: 0;
     left: -9999px;
     top: 0;
@@ -285,7 +283,7 @@ function typeWriterByLine(textArray, parentElement, callback, i = 0) {
     lineDiv.classList.add('line');
     lineDiv.innerHTML = textArray[i]; 
     parentElement.appendChild(lineDiv);
-    parentElement.scrollTop = parentElement.scrollHeight;
+    window.scrollTo(0, document.body.scrollHeight);
 
     const audio = new Audio('computer-mouse-click-352734.mp3');
     audio.volume = 0.5;
@@ -296,10 +294,13 @@ function typeWriterByLine(textArray, parentElement, callback, i = 0) {
     }, 200);
 }
 
-function handleCommand(input) {
+function handleCommand(rawInput) {
+    const input = rawInput.trim();
+    const lowerInput = input.toLowerCase(); // Makes calculation completely case-insensitive
+
     const commandLine = document.createElement('div');
     commandLine.classList.add('line');
-    commandLine.textContent = `${terminalPrompt}${input}`;
+    commandLine.textContent = `${terminalPrompt}${rawInput}`;
     terminalOutput.insertBefore(commandLine, terminalOutput.lastElementChild);
 
     const thinkingLine = document.createElement('div');
@@ -311,7 +312,7 @@ function handleCommand(input) {
     const thinkingInterval = setInterval(() => {
         dots = (dots + 1) % (maxDots + 1);
         thinkingLine.textContent = "Thinking" + ".".repeat(dots);
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     }, 300);
 
     setTimeout(() => {
@@ -322,8 +323,8 @@ function handleCommand(input) {
         outputLine.classList.add('line');
         terminalOutput.insertBefore(outputLine, terminalOutput.lastElementChild);
 
-        if (commands[input]) {
-            if (input === "skills") {
+        if (commands[lowerInput]) {
+            if (lowerInput === "skills") {
                 typeWriter("\nSkills detected...\n", outputLine, () => {
                     commands.skills.forEach(skill => {
                         const label = document.createElement('div');
@@ -339,10 +340,10 @@ function handleCommand(input) {
                         terminalOutput.insertBefore(container, terminalOutput.lastElementChild);
                     });
                     setTimeout(() => animateSkills(), 100);
-                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    window.scrollTo(0, document.body.scrollHeight);
                 });
-            } else if (input === "youtube") {
-                typeWriter(commands[input], outputLine, () => {
+            } else if (lowerInput === "youtube") {
+                typeWriter(commands[lowerInput], outputLine, () => {
                     const card = document.createElement('div');
                     card.classList.add('yt-card');
                     
@@ -356,31 +357,32 @@ function handleCommand(input) {
                     `;
                     
                     terminalOutput.insertBefore(card, terminalOutput.lastElementChild);
-                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    window.scrollTo(0, document.body.scrollHeight);
                 });
-            } else if (Array.isArray(commands[input])) {
-                typeWriterByLine(commands[input], outputLine);
+            } else if (Array.isArray(commands[lowerInput])) {
+                typeWriterByLine(commands[lowerInput], outputLine);
             } else {
-                typeWriterByLine([commands[input]], outputLine);
+                typeWriterByLine([commands[lowerInput]], outputLine);
             }
         } else {
             typeWriterByLine([`Command not found: ${input}`], outputLine);
         }
 
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     }, 1000);
 }
 
-// Focus hidden input to prompt keyboard on mobile tap
-document.addEventListener('click', () => {
-    hiddenInput.focus();
+// Allows user to click terminal to focus input, unless they are trying to select/copy text
+document.addEventListener('click', (e) => {
+    const selectedText = window.getSelection().toString();
+    if (!selectedText && e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+        hiddenInput.focus();
+    }
 });
 
-// Sync hidden input with terminal screen display
 hiddenInput.addEventListener('input', (e) => {
     terminalInput.textContent = hiddenInput.value;
     
-    // Play sound on typing
     if (e.inputType !== "deleteContentBackward") {
         const audio = new Audio(keySounds[Math.floor(Math.random() * keySounds.length)]);
         audio.volume = 0.4;
@@ -388,10 +390,9 @@ hiddenInput.addEventListener('input', (e) => {
     }
 });
 
-// Intercept functional keys (Enter, Tab)
 hiddenInput.addEventListener('keydown', (e) => {
     let currentInput = hiddenInput.value;
-    let currentSuggestions = allCommands.filter(cmd => cmd.startsWith(currentInput));
+    let currentSuggestions = allCommands.filter(cmd => cmd.startsWith(currentInput.toLowerCase()));
 
     if (e.key === "Tab") {
         e.preventDefault();
@@ -401,13 +402,12 @@ hiddenInput.addEventListener('keydown', (e) => {
         }
     } else if (e.key === "Enter") {
         e.preventDefault();
-        handleCommand(currentInput.trim());
+        handleCommand(currentInput);
         hiddenInput.value = '';
         terminalInput.textContent = '';
     }
 });
 
-// Startup scan + uptime bar
 function startupScan(callback) {
     const scanLine = document.createElement('div');
     scanLine.classList.add('line');
@@ -421,7 +421,7 @@ function startupScan(callback) {
     const scanInterval = setInterval(() => {
         dots = (dots + 1) % (maxDots + 1);
         scanLine.textContent = "Scanning" + ".".repeat(dots);
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
         cycles++;
         if (cycles > maxCycles * maxDots) {
             clearInterval(scanInterval);
@@ -436,7 +436,7 @@ function startupScan(callback) {
                 const filled = Math.floor((percent-80)/20*20);
                 const empty = 20 - filled;
                 progressBarLine.textContent = `[${'='.repeat(filled)}${' '.repeat(empty)}] ${percent}% uptime`;
-                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                window.scrollTo(0, document.body.scrollHeight);
                 percent++;
                 if (percent > 100) {
                     clearInterval(progressInterval);
@@ -449,7 +449,6 @@ function startupScan(callback) {
     }, 400);
 }
 
-// Dynamic system status
 function dynamicSystemStatus() {
     const statusLine = document.createElement('div');
     statusLine.classList.add('line');
@@ -461,14 +460,13 @@ function dynamicSystemStatus() {
         const network = Math.floor(50 + Math.random() * 150);
         const uptime = Math.floor(80 + Math.random() * 20);
         statusLine.textContent = `CPU: ${cpu}%   RAM: ${ram}%   Network: ${network} Mbps   Website uptime: ${uptime}%`;
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
     setInterval(updateStatus, 1500);
     updateStatus();
 }
 
-// Start
 startupScan(dynamicSystemStatus);
 </script>
 </body>
