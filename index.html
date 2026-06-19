@@ -68,12 +68,12 @@ a {
     text-decoration: none;
 }
 
-/* --- YOUTUBE GLITCH INTERFACE --- */
+/* --- YOUTUBE CRT CARD INTERFACE --- */
 .yt-card {
     margin: 15px 0;
     padding: 15px;
     border: 1px solid #00ffcc;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
     display: inline-flex;
     flex-direction: column;
@@ -92,56 +92,56 @@ a {
     }
 }
 
-/* CSS Glitch Effect using the same ytpfp.jpg */
-.glitch-pfp {
+/* CRT Frame and Scanline Engine */
+.crt-pfp-container {
     position: relative;
     width: 150px;
     height: 150px;
     border: 2px solid #00ffcc;
-    background: url('ytpfp.jpg') no-repeat center/cover;
+    box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.5), 0 0 10px rgba(0, 255, 204, 0.3);
     overflow: hidden;
+    background: #000;
 }
 
-.glitch-pfp::before, .glitch-pfp::after {
-    content: '';
+.crt-pfp {
+    width: 100%;
+    height: 100%;
+    background: url('ytpfp.jpg') no-repeat center/cover;
+    /* Subtle curved screen distortion feel */
+    transform: scale(1.02); 
+    filter: saturate(1.2) contrast(1.1);
+}
+
+/* The Moving CRT TV Scan Line */
+.crt-pfp-container::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 255, 204, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+}
+
+/* The Bright Refresh Beam Line */
+.crt-pfp-container::after {
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: url('ytpfp.jpg') no-repeat center/cover;
-    opacity: 0.8;
+    height: 6px;
+    background: rgba(0, 255, 204, 0.6);
+    box-shadow: 0 0 8px #00ffcc;
+    animation: crt-scan 3s linear infinite;
+    z-index: 3;
+    pointer-events: none;
 }
 
-.glitch-pfp::before {
-    left: 3px;
-    text-shadow: -2px 0 #ff00ff;
-    clip: rect(24px, 150px, 90px, 0);
-    animation: glitch-anim-1 2s infinite linear alternate-reverse;
-}
-
-.glitch-pfp::after {
-    left: -3px;
-    text-shadow: -2px 0 #00ffff;
-    clip: rect(85px, 150px, 140px, 0);
-    animation: glitch-anim-2 2s infinite linear alternate-reverse;
-}
-
-@keyframes glitch-anim-1 {
-    0% { clip: rect(20px, 150px, 40px, 0); }
-    20% { clip: rect(80px, 150px, 100px, 0); }
-    40% { clip: rect(10px, 150px, 60px, 0); }
-    60% { clip: rect(110px, 150px, 130px, 0); }
-    80% { clip: rect(40px, 150px, 90px, 0); }
-    100% { clip: rect(70px, 150px, 120px, 0); }
-}
-
-@keyframes glitch-anim-2 {
-    0% { clip: rect(70px, 150px, 105px, 0); }
-    25% { clip: rect(15px, 150px, 55px, 0); }
-    50% { clip: rect(95px, 150px, 135px, 0); }
-    75% { clip: rect(35px, 150px, 75px, 0); }
-    100% { clip: rect(5px, 150px, 85px, 0); }
+@keyframes crt-scan {
+    0% { top: -6px; }
+    100% { top: 156px; }
 }
 
 /* Cyberpunk Subscribe Button */
@@ -191,6 +191,7 @@ a {
     <div id="input-line">User@Visitor:~$ <span id="terminal-input"></span></div>
 </div>
 
+<!-- Hidden input field -->
 <input type="text" id="hidden-input" autocomplete="off" autofocus>
 
 <script>
@@ -336,12 +337,13 @@ function handleCommand(input) {
                 });
             } else if (input === "youtube") {
                 typeWriter(commands[input], outputLine, () => {
-                    // Create the custom visual terminal block
                     const card = document.createElement('div');
                     card.classList.add('yt-card');
                     
                     card.innerHTML = `
-                        <div class="glitch-pfp"></div>
+                        <div class="crt-pfp-container">
+                            <div class="crt-pfp"></div>
+                        </div>
                         <div style="margin-top:10px; font-weight:bold;">PRITAM</div>
                         <div style="font-size:11px; color:#888;">@pritam999xt</div>
                         <a href="https://youtube.com/@pritam999xt" target="_blank" class="sub-btn">Subscribe</a>
